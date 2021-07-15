@@ -71,9 +71,9 @@ func HashPassword(password string) (string, error) {
 }
 
 // CheckPasswordHash with bcrypt
-func CheckPasswordHash(password, hash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	return err == nil
+func CheckPasswordHash(password, hash string) (err error) {
+	err = bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return
 }
 
 // RandomHash with sha3-256
