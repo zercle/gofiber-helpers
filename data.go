@@ -3,6 +3,7 @@ package helpers
 import (
 	"fmt"
 	"net/http"
+	"path"
 	"strconv"
 	"strings"
 	"time"
@@ -11,13 +12,20 @@ import (
 )
 
 func FileNameWithoutExtension(fileName string) string {
-	if pos := strings.LastIndexByte(fileName, '.'); pos != -1 {
+	_, fileName = path.Split(fileName)
+	fileExtension := path.Ext(fileName)
+	if pos := strings.LastIndex(fileName, fileExtension); pos != -1 {
 		return fileName[:pos]
 	}
 	return fileName
 }
 
 func DateStrTotime(dateStr string) (result time.Time, err error) {
+	time.Local, err = time.LoadLocation("Asia/Bangkok")
+	if err != nil {
+		err = fiber.NewError(http.StatusInternalServerError, err.Error())
+		return
+	}
 	dateStr = strings.TrimSpace(dateStr)
 	var (
 		yearStr  string
@@ -49,7 +57,7 @@ func DateStrTotime(dateStr string) (result time.Time, err error) {
 		if dayStr == "00" {
 			dayStr = "01"
 		}
-		result, err = time.Parse("2006-01-02", fmt.Sprintf("%04s-%02s-%02s", yearStr, monthStr, dayStr))
+		result, err = time.ParseInLocation("2006-01-02", fmt.Sprintf("%04s-%02s-%02s", yearStr, monthStr, dayStr), time.Local)
 		if err == nil && !result.IsZero() {
 			// convert from BE
 			if result.Year() > (currentTime.Year() + 272) {
@@ -71,7 +79,7 @@ func DateStrTotime(dateStr string) (result time.Time, err error) {
 		if dayStr == "00" {
 			dayStr = "01"
 		}
-		result, err = time.Parse("2006-01-02", fmt.Sprintf("%04s-%02s-%02s", yearStr, monthStr, dayStr))
+		result, err = time.ParseInLocation("2006-01-02", fmt.Sprintf("%04s-%02s-%02s", yearStr, monthStr, dayStr), time.Local)
 		if err == nil && !result.IsZero() {
 			// convert from BE
 			if result.Year() > (currentTime.Year() + 272) {
@@ -83,7 +91,7 @@ func DateStrTotime(dateStr string) (result time.Time, err error) {
 		yearStr = dateStr[4:8]
 		monthStr = dateStr[2:4]
 		dayStr = dateStr[:2]
-		result, err = time.Parse("2006-01-02", fmt.Sprintf("%04s-%02s-%02s", yearStr, monthStr, dayStr))
+		result, err = time.ParseInLocation("2006-01-02", fmt.Sprintf("%04s-%02s-%02s", yearStr, monthStr, dayStr), time.Local)
 		if err == nil && !result.IsZero() {
 			// convert from BE
 			if result.Year() > (currentTime.Year() + 272) {
