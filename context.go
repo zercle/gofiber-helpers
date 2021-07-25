@@ -15,16 +15,6 @@ type Ctx struct {
 	*fiber.Ctx
 }
 
-// FormValueDefault returns the form field value for the provided name.
-//
-// Returns the "def" if not found.
-func (c *Ctx) FormValueDefault(name string, def string) string {
-	if v := c.FormValue(name); len(v) > 0 {
-		return v
-	}
-	return def
-}
-
 // FormValueTrim returns the form field value for the provided name, without trailing spaces.
 func (c *Ctx) FormValueTrim(name string) string {
 	return strings.TrimSpace(c.FormValue(name))
@@ -33,7 +23,7 @@ func (c *Ctx) FormValueTrim(name string) string {
 // FormValueDate returns the form field date value for the provided name.
 // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date
 func (c *Ctx) FormValueDate(name string) time.Time {
-	out, err := time.Parse("2006-01-02", strings.TrimSpace(c.FormValue(name)))
+	out, err := time.ParseInLocation("2006-01-02", strings.TrimSpace(c.FormValue(name)), time.Local)
 	if err != nil {
 		out = time.Time{}
 	}
@@ -43,7 +33,7 @@ func (c *Ctx) FormValueDate(name string) time.Time {
 // FormValueTime returns the form field time value for the provided name.
 // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/time
 func (c *Ctx) FormValueTime(name string) time.Time {
-	out, err := time.Parse("15:04", strings.TrimSpace(c.FormValue(name)))
+	out, err := time.ParseInLocation("15:04", strings.TrimSpace(c.FormValue(name)), time.Local)
 	if err != nil {
 		out = time.Time{}
 	}
@@ -53,7 +43,7 @@ func (c *Ctx) FormValueTime(name string) time.Time {
 // FormValueDateTime returns the form field datetime-local value for the provided name.
 // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/datetime-local
 func (c *Ctx) FormValueDateTime(name string) time.Time {
-	out, err := time.Parse("2006-01-02T15:04", strings.TrimSpace(c.FormValue(name)))
+	out, err := time.ParseInLocation("2006-01-02T15:04", strings.TrimSpace(c.FormValue(name)), time.Local)
 	if err != nil {
 		out = time.Time{}
 	}

@@ -40,6 +40,7 @@ func DateStrTotime(dateStr string) (result time.Time, err error) {
 		dateArr := strings.Split(dateStr, "-")
 		if len(dateArr) != 3 {
 			err = fiber.NewError(http.StatusBadRequest, "dateStr with /,- must in ISO date format")
+			return
 		}
 		if len(dateArr[0]) == 4 {
 			yearStr = dateArr[0]

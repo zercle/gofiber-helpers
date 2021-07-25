@@ -21,7 +21,11 @@ func TestFileNameWithoutExtension(t *testing.T) {
 	subject = "/dir0/dir1/test.ext"
 	expect = "test"
 	result := FileNameWithoutExtension(subject)
+	utils.AssertEqual(t, expect, result)
 
+	subject = "/dir0/dir1/test"
+	expect = "test"
+	result = FileNameWithoutExtension(subject)
 	utils.AssertEqual(t, expect, result)
 }
 
@@ -41,7 +45,21 @@ func TestDateStrTotime(t *testing.T) {
 	}
 	utils.AssertEqual(t, expect.Unix(), result.Unix())
 
+	subject = "2533-12-09"
+	result, err = DateStrTotime(subject)
+	if err != nil {
+		utils.AssertEqual(t, nil, err)
+	}
+	utils.AssertEqual(t, expect.Unix(), result.Unix())
+
 	subject = "09-12-1990"
+	result, err = DateStrTotime(subject)
+	if err != nil {
+		utils.AssertEqual(t, nil, err)
+	}
+	utils.AssertEqual(t, expect.Unix(), result.Unix())
+
+	subject = "09-12-2533"
 	result, err = DateStrTotime(subject)
 	if err != nil {
 		utils.AssertEqual(t, nil, err)
@@ -55,7 +73,67 @@ func TestDateStrTotime(t *testing.T) {
 	}
 	utils.AssertEqual(t, expect.Unix(), result.Unix())
 
+	subject = "25331209"
+	result, err = DateStrTotime(subject)
+	if err != nil {
+		utils.AssertEqual(t, nil, err)
+	}
+	utils.AssertEqual(t, expect.Unix(), result.Unix())
+
 	subject = "09121990"
+	result, err = DateStrTotime(subject)
+	if err != nil {
+		utils.AssertEqual(t, nil, err)
+	}
+	utils.AssertEqual(t, expect.Unix(), result.Unix())
+
+	subject = "09122533"
+	result, err = DateStrTotime(subject)
+	if err != nil {
+		utils.AssertEqual(t, nil, err)
+	}
+	utils.AssertEqual(t, expect.Unix(), result.Unix())
+
+	subject = "12-1990"
+	result, err = DateStrTotime(subject)
+	if err != nil {
+		utils.AssertEqual(t, fiber.NewError(http.StatusBadRequest, "dateStr with /,- must in ISO date format"), err)
+	}
+	utils.AssertEqual(t, time.Time{}.Unix(), result.Unix())
+
+	subject = "1990"
+	result, err = DateStrTotime(subject)
+	if err != nil {
+		utils.AssertEqual(t, fiber.NewError(http.StatusBadRequest, "dateStr must be 8,10 chars"), err)
+	}
+	utils.AssertEqual(t, time.Time{}.Unix(), result.Unix())
+
+	subject = "00-12-1990"
+	expect = time.Date(1990, 12, 01, 0, 0, 0, 0, time.Local)
+	result, err = DateStrTotime(subject)
+	if err != nil {
+		utils.AssertEqual(t, nil, err)
+	}
+	utils.AssertEqual(t, expect.Unix(), result.Unix())
+
+	subject = "09-00-1990"
+	expect = time.Date(1990, 01, 9, 0, 0, 0, 0, time.Local)
+	result, err = DateStrTotime(subject)
+	if err != nil {
+		utils.AssertEqual(t, nil, err)
+	}
+	utils.AssertEqual(t, expect.Unix(), result.Unix())
+
+	subject = "25331200"
+	expect = time.Date(1990, 12, 1, 0, 0, 0, 0, time.Local)
+	result, err = DateStrTotime(subject)
+	if err != nil {
+		utils.AssertEqual(t, nil, err)
+	}
+	utils.AssertEqual(t, expect.Unix(), result.Unix())
+
+	subject = "25330000"
+	expect = time.Date(1990, 1, 1, 0, 0, 0, 0, time.Local)
 	result, err = DateStrTotime(subject)
 	if err != nil {
 		utils.AssertEqual(t, nil, err)
