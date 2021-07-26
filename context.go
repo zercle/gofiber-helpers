@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"encoding/base64"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -56,18 +57,21 @@ func (c *Ctx) FormValueDateTime(name string) time.Time {
 func (c *Ctx) FormValueBase64(name string) string {
 	v := c.FormValueTrim(name)
 	if de, err := base64.URLEncoding.DecodeString(v); err == nil {
-		v = string(de)
+		return string(de)
+	}
+	if de, err := base64.StdEncoding.DecodeString(v); err == nil {
+		return string(de)
 	}
 	return v
 }
 
 // FormValueInt returns the form field value for the provided name, as int.
 //
-// If not found returns -1 and a non-nil error.
+// If not found returns 0 and a non-nil error.
 func (c *Ctx) FormValueInt(name string) (int, error) {
 	v := c.FormValueTrim(name)
 	if v == "" {
-		return -1, fiber.ErrNotFound
+		return 0, fiber.ErrNotFound
 	}
 	return strconv.Atoi(v)
 }
@@ -85,11 +89,11 @@ func (c *Ctx) FormValueIntDefault(name string, def int) int {
 
 // FormValueInt64 returns the form field value for the provided name, as float64.
 //
-// If not found returns -1 and a no-nil error.
+// If not found returns 0 and a no-nil error.
 func (c *Ctx) FormValueInt64(name string) (int64, error) {
 	v := c.FormValueTrim(name)
 	if v == "" {
-		return -1, fiber.ErrNotFound
+		return 0, fiber.ErrNotFound
 	}
 	return strconv.ParseInt(v, 10, 64)
 }
@@ -107,11 +111,11 @@ func (c *Ctx) FormValueInt64Default(name string, def int64) int64 {
 
 // FormValueFloat64 returns the form field value for the provided name, as float64.
 //
-// If not found returns -1 and a non-nil error.
+// If not found returns 0 and a non-nil error.
 func (c *Ctx) FormValueFloat64(name string) (float64, error) {
 	v := c.FormValueTrim(name)
 	if v == "" {
-		return -1, fiber.ErrNotFound
+		return 0, fiber.ErrNotFound
 	}
 	return strconv.ParseFloat(v, 64)
 }
@@ -129,29 +133,52 @@ func (c *Ctx) FormValueFloat64Default(name string, def float64) float64 {
 
 // FormValueBool returns the form field value for the provided name, as bool.
 //
-// If not found or value is false, then it returns false, otherwise true.
-func (c *Ctx) FormValueBool(name string) (bool, error) {
-	v := c.FormValueTrim(name)
-	if v == "" {
-		return false, fiber.ErrNotFound
+// If not found or value is false, then it returns true, otherwise false.
+func (c *Ctx) FormValueBool(name string) bool {
+	v, err := strconv.ParseBool(c.FormValueTrim(name))
+	if err != nil {
+		v = false
 	}
-
-	return strconv.ParseBool(v)
-}
-
-// ParamDefault returns path parameter by name.
-//
-// Returns the "def" if not found.
-func (c *Ctx) ParamDefault(name string, def string) string {
-	if v := c.Params(name); len(v) > 0 {
-		return v
-	}
-	return def
+	return v
 }
 
 // ParamTrim returns path parameter by name, without trailing spaces.
 func (c *Ctx) ParamTrim(name string) string {
-	return strings.TrimSpace(c.Params(name))
+	v, err := url.PathUnescape(c.Params(name))
+	if err != nil {
+		return c.Params(name)
+	}
+	return strings.TrimSpace(v)
+}
+
+// ParamDate returns the form field date value for the provided name.
+// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date
+func (c *Ctx) ParamDate(name string) time.Time {
+	out, err := time.ParseInLocation("2006-01-02", c.ParamTrim(name), time.Local)
+	if err != nil {
+		out = time.Time{}
+	}
+	return out
+}
+
+// ParamTime returns the form field time value for the provided name.
+// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/time
+func (c *Ctx) ParamTime(name string) time.Time {
+	out, err := time.ParseInLocation("15:04", c.ParamTrim(name), time.Local)
+	if err != nil {
+		out = time.Time{}
+	}
+	return out
+}
+
+// ParamDateTime returns the form field datetime-local value for the provided name.
+// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/datetime-local
+func (c *Ctx) ParamDateTime(name string) time.Time {
+	out, err := time.ParseInLocation("2006-01-02T15:04", c.ParamTrim(name), time.Local)
+	if err != nil {
+		out = time.Time{}
+	}
+	return out
 }
 
 // ParamBase64 returns path parameter by name.
@@ -167,11 +194,11 @@ func (c *Ctx) ParamBase64(name string) string {
 
 // ParamInt returns path parameter by name, as int.
 //
-// If not found returns -1 and a non-nil error.
+// If not found returns 0 and a non-nil error.
 func (c *Ctx) ParamInt(name string) (int, error) {
 	v := c.ParamTrim(name)
 	if v == "" {
-		return -1, fiber.ErrNotFound
+		return 0, fiber.ErrNotFound
 	}
 	return strconv.Atoi(v)
 }
@@ -189,11 +216,11 @@ func (c *Ctx) ParamIntDefault(name string, def int) int {
 
 // ParamInt64 returns path parameter by name, as float64.
 //
-// If not found returns -1 and a no-nil error.
+// If not found returns 0 and a no-nil error.
 func (c *Ctx) ParamInt64(name string) (int64, error) {
 	v := c.ParamTrim(name)
 	if v == "" {
-		return -1, fiber.ErrNotFound
+		return 0, fiber.ErrNotFound
 	}
 	return strconv.ParseInt(v, 10, 64)
 }
@@ -211,11 +238,11 @@ func (c *Ctx) ParamInt64Default(name string, def int64) int64 {
 
 // ParamFloat64 returns path parameter by name, as float64.
 //
-// If not found returns -1 and a non-nil error.
+// If not found returns 0 and a non-nil error.
 func (c *Ctx) ParamFloat64(name string) (float64, error) {
 	v := c.ParamTrim(name)
 	if v == "" {
-		return -1, fiber.ErrNotFound
+		return 0, fiber.ErrNotFound
 	}
 	return strconv.ParseFloat(v, 64)
 }
@@ -233,12 +260,11 @@ func (c *Ctx) ParamFloat64Default(name string, def float64) float64 {
 
 // ParamBool returns path parameter by name, as bool.
 //
-// If not found or value is false, then it returns false, otherwise true.
-func (c *Ctx) ParamBool(name string) (bool, error) {
-	v := c.ParamTrim(name)
-	if v == "" {
-		return false, fiber.ErrNotFound
+// If not found or value is false, then it returns true, otherwise false.
+func (c *Ctx) ParamBool(name string) bool {
+	v, err := strconv.ParseBool(c.ParamTrim(name))
+	if err != nil {
+		v = false
 	}
-
-	return strconv.ParseBool(v)
+	return v
 }
