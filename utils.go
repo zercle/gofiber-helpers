@@ -1,11 +1,15 @@
 package helpers
 
 import (
+	"bytes"
 	"crypto/rand"
+	"encoding/hex"
 	"fmt"
+	"net/http"
 	"runtime"
 	"strings"
 
+	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/sha3"
 
 	"golang.org/x/crypto/bcrypt"
@@ -65,14 +69,26 @@ func chopPath(original string, pathChar string) string {
 }
 
 // HashPassword with bcrypt
-func HashPassword(password string) (string, error) {
+func HashPasswordString(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(bytes), err
 }
 
+// HashPassword with bcrypt
+func HashPassword(password []byte) ([]byte, error) {
+	bytes, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
+	return bytes, err
+}
+
 // CheckPasswordHash with bcrypt
-func CheckPasswordHash(password, hash string) (err error) {
+func CheckPasswordHashString(password, hash string) (err error) {
 	err = bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return
+}
+
+// CheckPasswordHash with bcrypt
+func CheckPasswordHash(password, hash []byte) (err error) {
+	err = bcrypt.CompareHashAndPassword(hash, password)
 	return
 }
 
@@ -95,4 +111,23 @@ func RandomHash() (string, error) {
 // RemoveIndex from array
 func RemoveIndex(s []string, index int) []string {
 	return append(s[:index], s[index+1:]...)
+}
+
+func StructSumSha256(obj interface{}) string {
+	hash := sha3.Sum256([]byte(fmt.Sprintf("%v", obj)))
+
+	return hex.EncodeToString(hash[:])
+}
+
+func StructCheckSumSha256(obj interface{}, checksum string) error {
+	hash := sha3.Sum256([]byte(fmt.Sprintf("%v", obj)))
+	cs, err := hex.DecodeString(checksum)
+	if err != nil {
+		return err
+	}
+
+	if !bytes.Equal(hash[:], cs) {
+		return fiber.NewError(http.StatusBadRequest, fmt.Sprintf("Expect: %v\nResult: %x", checksum, hash[:]))
+	}
+	return nil
 }
