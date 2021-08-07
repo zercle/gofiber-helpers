@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/google/uuid"
 	"golang.org/x/crypto/sha3"
 
 	"golang.org/x/crypto/bcrypt"
@@ -78,16 +79,16 @@ func CheckPasswordHash(password, hash string) (err error) {
 
 // RandomHash with sha3-256
 func RandomHash() (string, error) {
-	b := make([]byte, 16)
+	b := make([]byte, 32)
 	_, err := rand.Read(b)
 	if err != nil {
 		return "", err
 	}
 
-	h := sha3.New256()
-	h.Write(b)
+	hasher := sha3.New256()
+	hasher.Write(b)
 
-	bs := h.Sum(nil)
+	bs := hasher.Sum(nil)
 
 	return string(bs), nil
 }
@@ -95,4 +96,10 @@ func RandomHash() (string, error) {
 // RemoveIndex from array
 func RemoveIndex(s []string, index int) []string {
 	return append(s[:index], s[index+1:]...)
+}
+
+func UUIDv4() (uuidStr string, err error) {
+	uuid4, err := uuid.NewRandom()
+	uuidStr = uuid4.String()
+	return
 }
