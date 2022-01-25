@@ -8,6 +8,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/utils"
+	"github.com/joho/godotenv"
 )
 
 func TestFileNameWithoutExtension(t *testing.T) {
@@ -187,4 +188,56 @@ func TestValidCID(t *testing.T) {
 		utils.AssertEqual(t, fiber.NewError(http.StatusBadRequest, fmt.Sprintf("cid must be 13 digits: %+v", subject)), err)
 	}
 	utils.AssertEqual(t, false, result)
+}
+
+func TestENVJSONArr(t *testing.T) {
+	t.Parallel()
+	var (
+		err     error
+		subject string
+		expect  []string
+	)
+
+	err = godotenv.Load(".env")
+	if err != nil {
+		utils.AssertEqual(t, expect, err)
+	}
+
+	subject = "JSON_ARRAY"
+	expect = []string{"value1", "value2"}
+	result, err := ENVJSONArray(subject)
+	if err != nil {
+		utils.AssertEqual(t, expect, err)
+	}
+
+	if len(result) != len(expect) {
+		utils.AssertEqual(t, len(expect), len(result))
+	}
+
+	for i := range expect {
+		utils.AssertEqual(t, expect[i], result[i].(string))
+	}
+}
+
+func TestENVJSONObj(t *testing.T) {
+	t.Parallel()
+	var (
+		err     error
+		subject string
+		expect  map[string]string
+	)
+
+	err = godotenv.Load(".env")
+	if err != nil {
+		utils.AssertEqual(t, expect, err)
+	}
+
+	subject = "JSON_OBJ"
+	expect = map[string]string{"key": "value"}
+	result, err := ENVJSONObj(subject)
+	if err != nil {
+		utils.AssertEqual(t, expect, err)
+	}
+	utils.AssertEqual(t, expect["key"], result["key"].(string))
+
 }

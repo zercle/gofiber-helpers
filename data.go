@@ -3,12 +3,14 @@ package helpers
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"path"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/segmentio/encoding/json"
 )
 
 func FileNameWithoutExtension(fileName string) string {
@@ -129,5 +131,17 @@ func ValidCID(cid string) (result bool, err error) {
 	} else {
 		err = fiber.NewError(http.StatusBadRequest, fmt.Sprintf("cid must be 13 digits: %+v", cid))
 	}
+	return
+}
+
+func ENVJSONArray(name string) (value []interface{}, err error) {
+	jsonString := os.Getenv(name)
+	err = json.Unmarshal([]byte(jsonString), &value)
+	return
+}
+
+func ENVJSONObj(name string) (value map[string]interface{}, err error) {
+	jsonString := os.Getenv(name)
+	err = json.Unmarshal([]byte(jsonString), &value)
 	return
 }
