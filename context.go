@@ -301,7 +301,7 @@ func (c *Ctx) BasicAuth(user, passwd string) error {
 	password := creds[index+1:]
 
 	if user == username && passwd == password {
-		return c.Next()
+		return nil
 	}
 
 	// Authentication failed
