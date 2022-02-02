@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"hash/crc64"
 	"net/http"
 	"runtime"
 	"strings"
@@ -93,6 +94,23 @@ func CheckPasswordHash(password, hash []byte) (err error) {
 	return
 }
 
+// RandomKey with crc64(UUIDv4)
+func RandomKey() (string, error) {
+	seed, err := UUIDv4()
+	if err != nil {
+		return "", err
+	}
+
+	hasher := crc64.New(crc64.MakeTable(crc64.ECMA))
+	_, err = hasher.Write([]byte(seed))
+	if err != nil {
+		return "", err
+	}
+	bs := hasher.Sum(nil)
+
+	return string(bs), nil
+}
+
 // RandomHash with sha3-256
 func RandomHash() (string, error) {
 	b := make([]byte, 32)
@@ -102,7 +120,10 @@ func RandomHash() (string, error) {
 	}
 
 	hasher := sha3.New256()
-	hasher.Write(b)
+	_, err = hasher.Write(b)
+	if err != nil {
+		return "", err
+	}
 
 	bs := hasher.Sum(nil)
 
