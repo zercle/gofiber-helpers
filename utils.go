@@ -108,7 +108,7 @@ func RandomKey() (string, error) {
 	}
 	bs := hasher.Sum(nil)
 
-	return string(bs), nil
+	return hex.EncodeToString(bs), nil
 }
 
 // RandomHash with sha3-256
@@ -127,7 +127,7 @@ func RandomHash() (string, error) {
 
 	bs := hasher.Sum(nil)
 
-	return string(bs), nil
+	return hex.EncodeToString(bs), nil
 }
 
 // RemoveIndex from array
