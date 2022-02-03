@@ -15,12 +15,12 @@ import (
 // Ctx represents the context of the current HTTP request. It holds request and
 // response objects, path, path parameters, data and registered handler.
 type Ctx struct {
-	Ctx *fiber.Ctx
+	*fiber.Ctx
 }
 
 // FormValueTrim returns the form field value for the provided name, without trailing spaces.
 func (c *Ctx) FormValueTrim(name string) string {
-	return strings.TrimSpace(c.Ctx.FormValue(name))
+	return strings.TrimSpace(c.FormValue(name))
 }
 
 // FormValueDate returns the form field date value for the provided name.
@@ -157,9 +157,9 @@ func (c *Ctx) FormValueArray(name string, sep ...string) (result []string) {
 
 // ParamTrim returns path parameter by name, without trailing spaces.
 func (c *Ctx) ParamTrim(name string) string {
-	v, err := url.PathUnescape(c.Ctx.Params(name))
+	v, err := url.PathUnescape(c.Params(name))
 	if err != nil {
-		return c.Ctx.Params(name)
+		return c.Params(name)
 	}
 	return strings.TrimSpace(v)
 }
@@ -284,7 +284,7 @@ func (c *Ctx) ParamBool(name string) bool {
 
 func (c *Ctx) BasicAuth(user, passwd string) error {
 	// Get authorization header
-	auth := c.Ctx.Get(fiber.HeaderAuthorization)
+	auth := c.Get(fiber.HeaderAuthorization)
 
 	// Check if the header contains content besides "basic".
 	if len(auth) <= 6 || strings.ToLower(auth[:5]) != "basic" {
