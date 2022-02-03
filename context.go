@@ -144,6 +144,17 @@ func (c *Ctx) FormValueBool(name string) bool {
 	return v
 }
 
+// FormValueInt returns the form field value for the provided name, as string array.
+//
+// If not found returns empty array.
+func (c *Ctx) FormValueArray(name string, sep ...string) (result []string) {
+	v := c.FormValueTrim(name)
+	if len(sep) == 0 {
+		sep = append(sep, ",")
+	}
+	return strings.Split(v, sep[0])
+}
+
 // ParamTrim returns path parameter by name, without trailing spaces.
 func (c *Ctx) ParamTrim(name string) string {
 	v, err := url.PathUnescape(c.Params(name))
