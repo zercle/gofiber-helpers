@@ -7,11 +7,13 @@ import (
 	"fmt"
 	"hash/crc64"
 	"net/http"
+	"os"
 	"runtime"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"github.com/influxdata/influxdb/v2/pkg/snowflake"
 	"golang.org/x/crypto/sha3"
 
 	"golang.org/x/crypto/bcrypt"
@@ -158,4 +160,14 @@ func StructCheckSumSha256(obj interface{}, checksum string) error {
 		return fiber.NewError(http.StatusBadRequest, fmt.Sprintf("Expect: %v\nResult: %x", checksum, hash[:]))
 	}
 	return nil
+}
+
+// InitSnowflake machine id base on process id
+func InitSnowflake(machineIDs ...int) (snowflakeGen *snowflake.Generator) {
+	machineID := (os.Getpid() % 1023)
+	if len(machineIDs) == 1 {
+		machineID = machineIDs[0]
+	}
+	snowflakeGen = snowflake.New(machineID)
+	return
 }
