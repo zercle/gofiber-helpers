@@ -149,6 +149,9 @@ func (c *Ctx) FormValueBool(name string) bool {
 // If not found returns empty array.
 func (c *Ctx) FormValueArray(name string, sep ...string) (result []string) {
 	v := c.FormValueTrim(name)
+	if len(v) == 0 {
+		return
+	}
 	if len(sep) == 0 {
 		sep = append(sep, ",")
 	}
