@@ -3,6 +3,7 @@ package helpers
 import (
 	"bytes"
 	"crypto/rand"
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"hash/crc64"
@@ -169,5 +170,35 @@ func InitSnowflake(machineIDs ...int) (snowflakeGen *snowflake.Generator) {
 		machineID = machineIDs[0]
 	}
 	snowflakeGen = snowflake.New(machineID)
+	return
+}
+
+func ExtractAuthString(authStr string) (auth HttpAuth, err error) {
+	authSlice := strings.Split(authStr, " ")
+	if len(authSlice) != 2 {
+		err = fiber.NewError(http.StatusUnauthorized, "invalid authorize format")
+		return
+	}
+	switch authSlice[0] {
+	case string(BasicAuth):
+		basicBytes, deErr := base64.StdEncoding.DecodeString(authSlice[1])
+		if deErr != nil {
+			err = fiber.NewError(http.StatusUnauthorized, err.Error())
+			return
+		}
+		basicSlice := bytes.Split(basicBytes, []byte(":"))
+		auth = HttpAuth{
+			Type:     BasicAuth,
+			Username: string(basicSlice[0]),
+			Password: string(basicSlice[1]),
+		}
+	case string(BearerToken):
+		auth = HttpAuth{
+			Type:  BearerToken,
+			Token: authSlice[1],
+		}
+	default:
+		err = fiber.NewError(http.StatusUnauthorized, "invalid authorize type: %s", authSlice[0])
+	}
 	return
 }
