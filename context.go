@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"bytes"
 	"encoding/base64"
 	"net/http"
 	"net/url"
@@ -9,7 +10,6 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/utils"
 )
 
 // Ctx represents the context of the current HTTP request. It holds request and
@@ -305,17 +305,14 @@ func (c *Ctx) BasicAuth(user, passwd string) error {
 		return fiber.NewError(http.StatusUnauthorized, err.Error())
 	}
 
-	// Get the credentials
-	credentialString := utils.UnsafeString(raw)
-
 	// Check if the credentials are in the correct form
 	// which is "username:password".
-	credentials := strings.Split(credentialString, ":")
+	credentials := bytes.Split(raw, []byte(":"))
 	if len(credentials) != 2 {
 		return fiber.NewError(http.StatusUnauthorized, "invalid basic auth format")
 	}
 
-	if user == credentials[0] && passwd == credentials[1] {
+	if bytes.Equal([]byte(user), credentials[0]) && bytes.Equal([]byte(passwd), credentials[1]) {
 		return nil
 	}
 
