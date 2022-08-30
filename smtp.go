@@ -39,19 +39,20 @@ func (m Mail) Builder() (body []byte) {
 		buf.WriteString(fmt.Sprintf("Bcc: %s\r\n", strings.Join(m.Bcc, ";")))
 	}
 
-	boundary := "zercle-boundary-779"
-	buf.WriteString("MIME-Version: 1.0\r\n")
-	buf.WriteString(fmt.Sprintf("Content-Type: multipart/mixed; boundary=%s\n", boundary))
+	boundary := "zercle-mail-boundary"
+	// buf.WriteString("MIME-Version: 1.0\r\n")
+	buf.WriteString(fmt.Sprintf("Content-Type: multipart/alternative; boundary=%s\n", boundary))
 
 	// Mail Body
 	buf.WriteString(fmt.Sprintf("\r\n--%s\r\n", boundary))
-	buf.WriteString("Content-Type: text/plain; charset=\"utf-8\"\r\n")
+	buf.WriteString("Content-Type: text/plain; charset=\"UTF-8\"\r\n")
+	buf.WriteString("Content-Transfer-Encoding: quoted-printable\r\n")
 	buf.WriteString(fmt.Sprintf("\r\n%s", m.Msg))
 
 	// Mail Attachment
 	if len(m.Attachment) != 0 {
 		buf.WriteString(fmt.Sprintf("\r\n--%s\r\n", boundary))
-		buf.WriteString("Content-Type: text/plain; charset=\"utf-8\"\r\n")
+		buf.WriteString("Content-Type: text/plain; charset=\"UTF-8\"\r\n")
 		buf.WriteString("Content-Transfer-Encoding: base64\r\n")
 		buf.WriteString("Content-Disposition: attachment; filename=" + m.AttachmentName + "\r\n")
 		buf.WriteString("Content-ID: <" + m.AttachmentName + ">\r\n\r\n")
