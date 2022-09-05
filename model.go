@@ -2,7 +2,8 @@ package helpers
 
 type ResponseForm struct {
 	Success    bool            `json:"success"`
-	Result     interface{}     `json:"result"`
+	Result     interface{}     `json:"result,omitempty"`
+	Data       interface{}     `json:"data,omitempty"`
 	Messages   []string        `json:"messages"`
 	Errors     []*ResposeError `json:"errors"`
 	ResultInfo *ResultInfo     `json:"result_info,omitempty"`
