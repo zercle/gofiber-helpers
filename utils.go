@@ -179,7 +179,7 @@ func ExtractAuthString(authStr string) (auth HttpAuth, err error) {
 		err = fiber.NewError(http.StatusUnauthorized, "invalid authorize format")
 		return
 	}
-	switch authSlice[0] {
+	switch strings.ToLower(authSlice[0]) {
 	case string(BasicAuth):
 		basicBytes, deErr := base64.StdEncoding.DecodeString(authSlice[1])
 		if deErr != nil {
@@ -198,7 +198,7 @@ func ExtractAuthString(authStr string) (auth HttpAuth, err error) {
 			Token: authSlice[1],
 		}
 	default:
-		err = fiber.NewError(http.StatusUnauthorized, "invalid authorize type: %s", authSlice[0])
+		err = fiber.NewError(http.StatusUnauthorized, fmt.Sprintf("invalid authorize type: %s", authSlice[0]))
 	}
 	return
 }
