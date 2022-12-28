@@ -61,7 +61,7 @@ func WhereAmI(skipList ...int) string {
 		skip = skipList[0]
 	}
 	function, file, line, _ := runtime.Caller(skip)
-	return fmt.Sprintf("File: %s:%d \nFunction: %s", file, line, chopPath(runtime.FuncForPC(function).Name(), "."))
+	return fmt.Sprintf("Function: %s \nFile: %s:%d", chopPath(runtime.FuncForPC(function).Name(), "."), file, line)
 }
 
 // return the source filename after the last slash
