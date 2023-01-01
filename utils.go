@@ -202,3 +202,12 @@ func ExtractAuthString(authStr string) (auth HttpAuth, err error) {
 	}
 	return
 }
+
+func NewError(code int, source string, title string, message string) Error {
+	return Error{
+		Code:    code,
+		Source:  source,
+		Title:   title,
+		Message: message,
+	}
+}
