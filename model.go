@@ -1,28 +1,16 @@
 package helpers
 
 type ResponseForm struct {
-	Success    bool        `json:"success"`
-	Result     interface{} `json:"result,omitempty"`
-	Messages   []string    `json:"messages,omitempty"`
-	Errors     []Error     `json:"errors,omitempty"`
-	ResultInfo *ResultInfo `json:"result_info,omitempty"`
+	Success    bool            `json:"success"`
+	Result     interface{}     `json:"result,omitempty"`
+	Messages   []string        `json:"messages,omitempty"`
+	Errors     []ResponseError `json:"errors,omitempty"`
+	ResultInfo *ResultInfo     `json:"result_info,omitempty"`
 }
 
 // backward complatible
 type ResponseError struct {
 	*Error
-}
-
-// Error represents an error that occurred while handling a request.
-type Error struct {
-	Code    int         `json:"code"`
-	Source  interface{} `json:"source,omitempty"`
-	Title   string      `json:"title,omitempty"`
-	Message string      `json:"message"`
-}
-
-func (e *Error) Error() string {
-	return e.Message
 }
 
 type ResultInfo struct {
