@@ -10,7 +10,7 @@ type ResponseForm struct {
 
 // backward complatible
 type ResponseError struct {
-	*Error
+	Error
 }
 
 type ResultInfo struct {
