@@ -8,10 +8,9 @@ type ResponseForm struct {
 	ResultInfo *ResultInfo     `json:"result_info,omitempty"`
 }
 
-// backward complatible
-type ResponseError struct {
-	Error
-}
+// ResponseError
+// backward complatible Error
+type ResponseError Error
 
 type ResultInfo struct {
 	Page      int `json:"page"`

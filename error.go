@@ -1,20 +1,20 @@
 package helpers
 
-import "net/http"
+import (
+	"net/http"
+	"strings"
+)
 
 // Error represents an error that occurred while handling a request.
 type Error struct {
-	Code     int         `json:"code"`
-	Source   interface{} `json:"source,omitempty"`
-	Title    string      `json:"title,omitempty"`
-	Messages []string    `json:"messages"`
+	Code    int         `json:"code"`
+	Source  interface{} `json:"source,omitempty"`
+	Title   string      `json:"title,omitempty"`
+	Message string      `json:"message,omitempty"`
 }
 
 func (e *Error) Error() (errStr string) {
-	if len(e.Messages) != 0 {
-		errStr = e.Messages[0]
-	}
-	return
+	return e.Message
 }
 
 func NewError(code int, source string, message ...string) (err *Error) {
@@ -22,10 +22,10 @@ func NewError(code int, source string, message ...string) (err *Error) {
 		message = append(message, http.StatusText(code))
 	}
 	err = &Error{
-		Code:     code,
-		Source:   source,
-		Title:    http.StatusText(code),
-		Messages: message,
+		Code:    code,
+		Source:  source,
+		Title:   http.StatusText(code),
+		Message: strings.Join(message, "\n "),
 	}
 	return
 }
