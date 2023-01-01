@@ -18,6 +18,9 @@ func (e *Error) Error() (errStr string) {
 }
 
 func NewError(code int, source string, message ...string) (err *Error) {
+	if len(message) == 0 {
+		message = append(message, http.StatusText(code))
+	}
 	err = &Error{
 		Code:     code,
 		Source:   source,
