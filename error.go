@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"log"
 	"net/http"
 	"strings"
 )
@@ -17,7 +18,24 @@ func (e *Error) Error() (errStr string) {
 	return e.Message
 }
 
-func NewError(code int, source string, message ...string) (err *Error) {
+func (e *Error) Log() {
+	log.Printf("source: %+s \nerr: %+s", e.Source, e.Message)
+}
+
+func NewError(code int, message ...string) (err *Error) {
+	if len(message) == 0 {
+		message = append(message, http.StatusText(code))
+	}
+	err = &Error{
+		Code:    code,
+		Source:  WhereAmI(2),
+		Title:   http.StatusText(code),
+		Message: strings.Join(message, " \n"),
+	}
+	return
+}
+
+func NewErrorSource(code int, source string, message ...string) (err *Error) {
 	if len(message) == 0 {
 		message = append(message, http.StatusText(code))
 	}
@@ -25,7 +43,7 @@ func NewError(code int, source string, message ...string) (err *Error) {
 		Code:    code,
 		Source:  source,
 		Title:   http.StatusText(code),
-		Message: strings.Join(message, "\n "),
+		Message: strings.Join(message, " \n"),
 	}
 	return
 }
