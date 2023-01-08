@@ -19,7 +19,7 @@ func (e *Error) Error() (errStr string) {
 }
 
 func (e *Error) Log() {
-	log.Printf("source: %+s \nerr: %+s", e.Source, e.Message)
+	log.Printf("source: %+s \nerr: %+s \n", e.Source, e.Message)
 }
 
 func NewError(code int, message ...string) (err *Error) {
